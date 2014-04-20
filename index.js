@@ -14,9 +14,10 @@ var spSetup = function(path) {
   sp.on('close',function() { console.log("connection to serial port closed".orange); });
   sp.on('data',function(data) {
     data = data.toString();
-    console.log('-->' + data);
+    console.log('-->' + data.green + "\n");
+    atPrompt();
   });
-  //atPrompt();
+  atPrompt();
 };
 
 var setup = function() {};
@@ -28,8 +29,9 @@ var atPrompt = function() {
     required:true
   },function(err,result) {
     if(err) return console.log(err);
+    result.command = result.command.replace("[cz]",'\u001A');
     sp.write(result.command+"\r",function(err,result) {
-      atPrompt();
+     // atPrompt();
     });
   });
 };
