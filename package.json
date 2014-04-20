@@ -1,7 +1,6 @@
 {
   "name": "gsm",
   "version": "0.0.0",
-  "main": "index.js",
   "dependencies": {
     "serialport": "^1.4.0",
     "colors": "^0.6.2",
