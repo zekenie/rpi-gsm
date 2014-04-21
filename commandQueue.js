@@ -11,10 +11,15 @@ var Queue = function(bus) {
 
 //takes n arguments to be pushed into the queue
 Queue.prototype.push = function() {
+  //remove carrage returns and append one at 
+  for(var i = 0, ii = arguments.length; i < ii; i++) {
+    arguments[i] = arguments[i].replace("\r",'') + "\r";
+  }
   this.queue.push.apply(this.queue,arguments);
   if(!this.running && this.open) {
     this.run();
   }
+  return this.queue.length;
 };
 
 Queue.prototype.run = function() {
@@ -47,10 +52,12 @@ Queue.prototype.addEventListeners = function() {
   });
 };
 
+module.exports = Queue;
+/*
 var queue = new Queue();
 queue.push(
-    "AT+CMGL=\"REC UNREAD\"\r"
-//  "at+cmgf=1\r",
-//  "at+cmgs=\"+5102955523\"\r",
-//  "this is the test of a text" + '\u001A' + "\r"
-);
+  "AT+CMGL=\"REC UNREAD\"\r"
+  "at+cmgf=1\r",
+  "at+cmgs=\"+15102955523\"\r",
+  "this is the test of a text" + '\u001A' + "\r"
+);*/
