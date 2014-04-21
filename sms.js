@@ -16,6 +16,6 @@ var sms = function(to,msg) {
 var i = 0;
 setup();
 setInterval(function() {
-  sms("+15102955523","this is message" + i);
+  sms("+13232055253","this is message" + i);
   i++;
 },2000);
