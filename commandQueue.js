@@ -1,13 +1,26 @@
 var SerialPort = require('serialport').SerialPort,
-    colors = require('colors');
+    winston = require('winston');
+
 
 var Queue = function(bus) {
   this.queue = [];
   this.running = false;
   this.open = false;
-  this.sp = new SerialPort(bus || '/dev/ttyUSB3');
+  this.bus = bus || '/dev/ttyUSB3';
+  this.sp = new SerialPort(this.bus);
   this.addEventListeners();
+  this.logger = new (winston.Logger)({
+    transports:[
+      new (winston.transports.File)({ filename: './log/' + this.bus.split('/').join('-') + '.log' } )
+    ]
+  });
 };
+
+['log','warn','info','error'].forEach(function(logMethod) {
+  Queue.prototype[logMethod] = function() {
+    return this.logger[logMethod].apply(this.logger,arguments);
+  }
+});
 
 //takes n arguments to be pushed into the queue
 Queue.prototype.push = function() {
@@ -24,11 +37,12 @@ Queue.prototype.push = function() {
 
 Queue.prototype.run = function() {
   if(this.queue.length > 0) {
+    var self = this;
     this.running = true;
     var cmd = this.queue.shift();
     this.sp.write(cmd,function(err,result) {
-      if(err) console.log('err on write'.red);
-      console.log('sent ' + cmd);
+      if(err) self.error('err on write');
+      self.log('sent ' + cmd);
     });
   } else {
     this.running = false;
@@ -38,12 +52,11 @@ Queue.prototype.run = function() {
 Queue.prototype.addEventListeners = function() {
   var self = this;
   this.sp.on('error',function(err) {
-    console.log('error on serial port'.red.bold);
-    console.log(err);
+    self.error('err on serial port',err);
   });
   this.sp.on('data',function(data) {
     data = data.toString();
-    console.log('\n\t--> ' + data.green);
+    self.info('serial data',data);
     self.run();
   });
   this.sp.on('open',function() {
