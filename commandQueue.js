@@ -7,6 +7,7 @@ var Queue = function(bus) {
   this.running = false;
   this.open = false;
   this.bus = bus || '/dev/ttyUSB3';
+  this.dataRecieved = [];
   this.sp = new SerialPort(this.bus);
   this.addEventListeners();
   this.logger = new (winston.Logger)({
@@ -32,7 +33,11 @@ Queue.prototype.push = function() {
   if(!this.running && this.open) {
     this.run();
   }
-  return this.queue.length;
+  return {
+    then:function(cb) {
+      
+    }
+  }
 };
 
 Queue.prototype.run = function() {
@@ -56,7 +61,8 @@ Queue.prototype.addEventListeners = function() {
   });
   this.sp.on('data',function(data) {
     data = data.toString();
-    self.info('serial data',data);
+    self.dataRecieved.push(data);
+    self.log('serial data',data);
     self.run();
   });
   this.sp.on('open',function() {
